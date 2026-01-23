@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09090B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WriteRight">
+  <meta name="description" content="Voice to text grammar coach. Speak it. Send it right.">
+  
+  <title>WriteRight - Speak it. Send it right.</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIldyaXRlUmlnaHQiLAogICJzaG9ydF9uYW1lIjogIldyaXRlUmlnaHQiLAogICJkZXNjcmlwdGlvbiI6ICJWb2ljZSB0byB0ZXh0IGdyYW1tYXIgY29hY2giLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA5MDkwQiIsCiAgInRoZW1lX2NvbG9yIjogIiMxMEI5ODEiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIyYVdWM1FtOTRQU0l3SURBZ01UQXdJREV3TUNJZ2VHMXNibk05SW1oMGRIQTZMeTkzZDNjdWR6TXViM0puTHpJd01EQXZjM1puSWo0OGNtVmpkQ0IzYVdSMGFEMGlNVEF3SWlCb1pXbG5hSFE5SWpFd01DSWdabWxzYkQwaUl6QTVNRGt3UWlJdlBqeDBaWGgwSUhnOUlqVXdJaUI1UFNJMk1DSWdabTl1ZEMxbVlXMXBiSGs5SWtGeWFXRnNJaUJtYjI1MExYTnBlbVU5SWpJMElpQm1hV3hzUFNJak1UQkNPVGd4SWlCMFpYaDBMV0Z1WTJodmNqMGliV2xrWkd4bElqNVhVand2ZEdWNGRENDhkR1Y0ZENCNFBTSTFNQ0lnZVQwaU5qQWlJR1p2Ym5RdFptRnRhV3g1UFNKQmNtbGhiQ0lnWm05dWRDMXphWHBsUFNJeU5DSWdabWxzYkQwaUkwWkdSa1pHUmlJZ2RHVjRkQzFoYm1Ob2IzSTlJbTFwWkdSc1pTSStVand2ZEdWNGRENDhMM04yWno0PSIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzA5MDkwQiIvPjx0ZXh0IHg9IjUwIiB5PSI2MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjI0IiBmaWxsPSIjMTBCOTgxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5XUjwvdGV4dD48L3N2Zz4=">
+  
+  <style>
+    /* ========================================
+       WRITERIGHT v2 - FULLY EMBEDDED STYLES
+       Fixed speech recognition + grammar rules
+       ======================================== */
+    
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background: #09090B;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overscroll-behavior: none;
+    }
+    
+    #root {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    
+    @media (max-width: 640px) {
+      #root {
+        padding: 0;
+        align-items: stretch;
+      }
+    }
+    
+    /* Animations */
+    .animate-pulse {
+      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Recording pulse animation */
+    @keyframes recording-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+    }
+    
+    .recording-pulse {
+      animation: recording-pulse 1.5s ease-in-out infinite;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 2px; }
+    
+    /* ========================================
+       UTILITY CLASSES
+       ======================================== */
+    
+    /* Display & Flex */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-1 { flex: 1 1 0%; }
+    .items-start { align-items: flex-start; }
+    .items-center { align-items: center; }
+    .items-end { align-items: flex-end; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-end { justify-content: flex-end; }
+    .flex-wrap { flex-wrap: wrap; }
+    .flex-shrink-0 { flex-shrink: 0; }
+    
+    /* Position */
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .top-0 { top: 0; }
+    .right-0 { right: 0; }
+    .left-0 { left: 0; }
+    .bottom-0 { bottom: 0; }
+    
+    /* Width & Height */
+    .w-2 { width: 0.5rem; }
+    .w-3 { width: 0.75rem; }
+    .w-4 { width: 1rem; }
+    .w-5 { width: 1.25rem; }
+    .w-6 { width: 1.5rem; }
+    .w-8 { width: 2rem; }
+    .w-10 { width: 2.5rem; }
+    .w-12 { width: 3rem; }
+    .w-14 { width: 3.5rem; }
+    .w-16 { width: 4rem; }
+    .w-20 { width: 5rem; }
+    .w-24 { width: 6rem; }
+    .w-32 { width: 8rem; }
+    .w-full { width: 100%; }
+    
+    .h-2 { height: 0.5rem; }
+    .h-3 { height: 0.75rem; }
+    .h-4 { height: 1rem; }
+    .h-5 { height: 1.25rem; }
+    .h-6 { height: 1.5rem; }
+    .h-8 { height: 2rem; }
+    .h-10 { height: 2.5rem; }
+    .h-12 { height: 3rem; }
+    .h-14 { height: 3.5rem; }
+    .h-16 { height: 4rem; }
+    .h-20 { height: 5rem; }
+    .h-24 { height: 6rem; }
+    .h-32 { height: 8rem; }
+    .h-full { height: 100%; }
+    .h-screen { height: 100vh; }
+    .min-h-0 { min-height: 0; }
+    .min-h-24 { min-height: 6rem; }
+    .min-h-screen { min-height: 100vh; }
+    .max-h-32 { max-height: 8rem; }
+    .max-h-48 { max-height: 12rem; }
+    .max-h-64 { max-height: 16rem; }
+    
+    /* Padding */
+    .p-1 { padding: 0.25rem; }
+    .p-2 { padding: 0.5rem; }
+    .p-3 { padding: 0.75rem; }
+    .p-4 { padding: 1rem; }
+    .p-5 { padding: 1.25rem; }
+    .p-6 { padding: 1.5rem; }
+    .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+    .pt-2 { padding-top: 0.5rem; }
+    .pt-4 { padding-top: 1rem; }
+    .pt-6 { padding-top: 1.5rem; }
+    .pt-8 { padding-top: 2rem; }
+    .pb-2 { padding-bottom: 0.5rem; }
+    .pb-3 { padding-bottom: 0.75rem; }
+    .pb-4 { padding-bottom: 1rem; }
+    .pb-6 { padding-bottom: 1.5rem; }
+    .pb-8 { padding-bottom: 2rem; }
+    .pb-24 { padding-bottom: 6rem; }
+    .pl-3 { padding-left: 0.75rem; }
+    .pr-1 { padding-right: 0.25rem; }
+    
+    /* Margin */
+    .m-0 { margin: 0; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 0.75rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mr-1 { margin-right: 0.25rem; }
+    .mr-2 { margin-right: 0.5rem; }
+    .ml-1 { margin-left: 0.25rem; }
+    .ml-2 { margin-left: 0.5rem; }
+    .-mt-1 { margin-top: -0.25rem; }
+    
+    /* Gap & Space */
+    .gap-1 { gap: 0.25rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
+    .gap-5 { gap: 1.25rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .space-x-2 > * + * { margin-left: 0.5rem; }
+    .space-x-3 > * + * { margin-left: 0.75rem; }
+    
+    /* Background Colors */
+    .bg-transparent { background-color: transparent; }
+    .bg-black { background-color: #000; }
+    .bg-white { background-color: #fff; }
+    .bg-zinc-700 { background-color: #3f3f46; }
+    .bg-zinc-750 { background-color: #323238; }
+    .bg-zinc-800 { background-color: #27272a; }
+    .bg-zinc-800\/50 { background-color: rgba(39, 39, 42, 0.5); }
+    .bg-zinc-800\/80 { background-color: rgba(39, 39, 42, 0.8); }
+    .bg-zinc-850 { background-color: #1f1f23; }
+    .bg-zinc-900 { background-color: #18181b; }
+    .bg-zinc-900\/50 { background-color: rgba(24, 24, 27, 0.5); }
+    .bg-zinc-900\/80 { background-color: rgba(24, 24, 27, 0.8); }
+    .bg-zinc-950 { background-color: #09090b; }
+    .bg-emerald-500 { background-color: #10b981; }
+    .bg-emerald-500\/10 { background-color: rgba(16, 185, 129, 0.1); }
+    .bg-emerald-500\/20 { background-color: rgba(16, 185, 129, 0.2); }
+    .bg-emerald-600 { background-color: #059669; }
+    .bg-red-500 { background-color: #ef4444; }
+    .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1); }
+    .bg-red-500\/20 { background-color: rgba(239, 68, 68, 0.2); }
+    .bg-amber-500\/10 { background-color: rgba(245, 158, 11, 0.1); }
+    .bg-amber-500\/20 { background-color: rgba(245, 158, 11, 0.2); }
+    .bg-blue-500\/10 { background-color: rgba(59, 130, 246, 0.1); }
+    .bg-blue-500\/20 { background-color: rgba(59, 130, 246, 0.2); }
+    
+    /* Text Colors */
+    .text-white { color: #fff; }
+    .text-black { color: #000; }
+    .text-zinc-300 { color: #d4d4d8; }
+    .text-zinc-400 { color: #a1a1aa; }
+    .text-zinc-500 { color: #71717a; }
+    .text-zinc-600 { color: #52525b; }
+    .text-emerald-400 { color: #34d399; }
+    .text-emerald-500 { color: #10b981; }
+    .text-red-400 { color: #f87171; }
+    .text-red-500 { color: #ef4444; }
+    .text-amber-400 { color: #fbbf24; }
+    .text-amber-500 { color: #f59e0b; }
+    .text-blue-400 { color: #60a5fa; }
+    
+    /* Font Size */
+    .text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .text-base { font-size: 1rem; line-height: 1.5rem; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+    .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+    .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+    .text-5xl { font-size: 3rem; line-height: 1; }
+    
+    /* Font Weight */
+    .font-normal { font-weight: 400; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-black { font-weight: 900; }
+    
+    /* Text Alignment & Transform */
+    .text-left { text-align: left; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .uppercase { text-transform: uppercase; }
+    .capitalize { text-transform: capitalize; }
+    .tracking-wider { letter-spacing: 0.05em; }
+    .tracking-widest { letter-spacing: 0.1em; }
+    .leading-tight { line-height: 1.25; }
+    .leading-relaxed { line-height: 1.625; }
+    .leading-none { line-height: 1; }
+    
+    /* Border Radius */
+    .rounded { border-radius: 0.25rem; }
+    .rounded-md { border-radius: 0.375rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-3xl { border-radius: 1.5rem; }
+    .rounded-full { border-radius: 9999px; }
+    .rounded-t-xl { border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; }
+    .rounded-b-xl { border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; }
+    
+    /* Border */
+    .border { border-width: 1px; border-style: solid; }
+    .border-0 { border-width: 0; }
+    .border-2 { border-width: 2px; border-style: solid; }
+    .border-t { border-top-width: 1px; border-top-style: solid; }
+    .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
+    .border-l-2 { border-left-width: 2px; border-left-style: solid; }
+    .border-l-4 { border-left-width: 4px; border-left-style: solid; }
+    .border-transparent { border-color: transparent; }
+    .border-zinc-600 { border-color: #52525b; }
+    .border-zinc-700 { border-color: #3f3f46; }
+    .border-zinc-700\/30 { border-color: rgba(63, 63, 70, 0.3); }
+    .border-zinc-700\/40 { border-color: rgba(63, 63, 70, 0.4); }
+    .border-zinc-700\/50 { border-color: rgba(63, 63, 70, 0.5); }
+    .border-zinc-800 { border-color: #27272a; }
+    .border-emerald-500 { border-color: #10b981; }
+    .border-emerald-500\/30 { border-color: rgba(16, 185, 129, 0.3); }
+    .border-red-500\/30 { border-color: rgba(239, 68, 68, 0.3); }
+    .border-amber-500\/30 { border-color: rgba(245, 158, 11, 0.3); }
+    .border-blue-500\/30 { border-color: rgba(59, 130, 246, 0.3); }
+    
+    /* Overflow */
+    .overflow-hidden { overflow: hidden; }
+    .overflow-auto { overflow: auto; }
+    .overflow-y-auto { overflow-y: auto; }
+    .overflow-x-hidden { overflow-x: hidden; }
+    
+    /* Shadow */
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+    .shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+    
+    /* Opacity */
+    .opacity-0 { opacity: 0; }
+    .opacity-50 { opacity: 0.5; }
+    .opacity-60 { opacity: 0.6; }
+    .opacity-75 { opacity: 0.75; }
+    .opacity-80 { opacity: 0.8; }
+    .opacity-100 { opacity: 1; }
+    
+    /* Z-Index */
+    .z-10 { z-index: 10; }
+    .z-20 { z-index: 20; }
+    .z-50 { z-index: 50; }
+    
+    /* Cursor & Selection */
+    .cursor-pointer { cursor: pointer; }
+    .select-none { user-select: none; }
+    .pointer-events-none { pointer-events: none; }
+    
+    /* Transitions */
+    .transition { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-opacity { transition-property: opacity; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-transform { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .duration-200 { transition-duration: 200ms; }
+    .duration-300 { transition-duration: 300ms; }
+    .ease-in-out { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    /* Transform */
+    .scale-95 { transform: scale(0.95); }
+    .scale-100 { transform: scale(1); }
+    .scale-105 { transform: scale(1.05); }
+    .scale-110 { transform: scale(1.1); }
+    
+    /* Misc */
+    .whitespace-pre-wrap { white-space: pre-wrap; }
+    .whitespace-nowrap { white-space: nowrap; }
+    .break-words { word-wrap: break-word; overflow-wrap: break-word; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .outline-none { outline: 2px solid transparent; outline-offset: 2px; }
+    .ring-0 { box-shadow: 0 0 0 0 transparent; }
+    .resize-none { resize: none; }
+    .appearance-none { appearance: none; }
+    .list-none { list-style-type: none; }
+    
+    /* Hover States */
+    .hover\:bg-zinc-700:hover { background-color: #3f3f46; }
+    .hover\:bg-zinc-750:hover { background-color: #323238; }
+    .hover\:bg-emerald-600:hover { background-color: #059669; }
+    .hover\:scale-105:hover { transform: scale(1.05); }
+    .hover\:scale-110:hover { transform: scale(1.1); }
+    .active\:scale-95:active { transform: scale(0.95); }
+    .active\:scale-100:active { transform: scale(1); }
+    
+    /* Focus States */
+    .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+    .focus\:ring-0:focus { box-shadow: 0 0 0 0 transparent; }
+    
+    /* SM Breakpoint */
+    @media (min-width: 640px) {
+      .sm\:max-w-sm { max-width: 24rem; }
+      .sm\:h-\[700px\] { height: 700px; }
+      .sm\:rounded-3xl { border-radius: 1.5rem; }
+      .sm\:border { border-width: 1px; border-style: solid; }
+    }
+    
+    /* Button Reset */
+    button {
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      cursor: pointer;
+      outline: inherit;
+    }
+    
+    /* Textarea Reset */
+    textarea {
+      font: inherit;
+    }
+    
+    /* App Container */
+    .app-container {
+      background: linear-gradient(180deg, #18181B 0%, #09090B 100%);
+    }
+    
+    /* Record Button Glow */
+    .record-btn-glow {
+      box-shadow: 0 0 60px rgba(16, 185, 129, 0.3);
+    }
+    
+    .record-btn-recording {
+      box-shadow: 0 0 80px rgba(239, 68, 68, 0.4);
+    }
+    
+    /* Interim text styling */
+    .interim-text {
+      color: #71717a;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // ========================================
+    // GRAMMAR ANALYSIS ENGINE v2
+    // Works with BOTH raw text AND speech API output
+    // ========================================
+    const analyzeGrammar = (text) => {
+      const corrections = [];
+      let correctedText = text;
+      
+      // Normalize text for analysis - trim and clean up spacing
+      correctedText = correctedText.trim().replace(/\s+/g, ' ');
+      
+      const rules = [
+        // === HOMOPHONE ERRORS (Speech API often gets these wrong) ===
+        // your/you're - these are the BIG ones speech gets wrong
+        { pattern: /\byour\s+(going|doing|coming|leaving|working|trying|getting|making|taking|running|saying|welcome|right|wrong|fired|hired|done|finished|late|early|next|up|here|there|ready)\b/gi, replacement: "you're $1", rule: "You're vs Your", explanation: "'You're' = 'you are'. 'Your' shows possession.", category: "word_choice" },
+        { pattern: /\byour\s+the\b/gi, replacement: "you're the", rule: "You're vs Your", explanation: "'You're' = 'you are'.", category: "word_choice" },
+        { pattern: /\byour\s+a\s+/gi, replacement: "you're a ", rule: "You're vs Your", explanation: "'You're' = 'you are'.", category: "word_choice" },
+        { pattern: /\byour\s+an\s+/gi, replacement: "you're an ", rule: "You're vs Your", explanation: "'You're' = 'you are'.", category: "word_choice" },
+        { pattern: /\byour\s+not\b/gi, replacement: "you're not", rule: "You're vs Your", explanation: "'You're' = 'you are'.", category: "word_choice" },
+        { pattern: /\byour\s+so\b/gi, replacement: "you're so", rule: "You're vs Your", explanation: "'You're' = 'you are'.", category: "word_choice" },
+        
+        // their/there/they're
+        { pattern: /\btheir\s+(is|are|was|were|going|gonna|will|would|could|should|might|must|has|have|had)\b/gi, replacement: "there $1", rule: "There vs Their", explanation: "'There' = location/existence. 'Their' = possession.", category: "word_choice" },
+        { pattern: /\btheir\s+a\s+/gi, replacement: "there's a ", rule: "There vs Their", explanation: "'There' = location/existence.", category: "word_choice" },
+        { pattern: /\btheir\s+are\b/gi, replacement: "there are", rule: "There vs Their", explanation: "'There' = location/existence.", category: "word_choice" },
+        { pattern: /\bover\s+their\b/gi, replacement: "over there", rule: "There vs Their", explanation: "'There' = location.", category: "word_choice" },
+        { pattern: /\bright\s+their\b/gi, replacement: "right there", rule: "There vs Their", explanation: "'There' = location.", category: "word_choice" },
+        
+        // its/it's
+        { pattern: /\bits\s+(a|the|going|been|not|really|very|so|just|always|never|about|time|been|getting|looking|working|coming|taking|making|been)\b/gi, replacement: "it's $1", rule: "It's vs Its", explanation: "'It's' = 'it is'. 'Its' = possession.", category: "word_choice" },
+        { pattern: /\bits\s+not\b/gi, replacement: "it's not", rule: "It's vs Its", explanation: "'It's' = 'it is'.", category: "word_choice" },
+        
+        // than/then
+        { pattern: /\bbetter\s+then\b/gi, replacement: "better than", rule: "Than vs Then", explanation: "'Than' for comparisons. 'Then' for time.", category: "word_choice" },
+        { pattern: /\bmore\s+then\b/gi, replacement: "more than", rule: "Than vs Then", explanation: "'Than' for comparisons.", category: "word_choice" },
+        { pattern: /\bless\s+then\b/gi, replacement: "less than", rule: "Than vs Then", explanation: "'Than' for comparisons.", category: "word_choice" },
+        { pattern: /\brather\s+then\b/gi, replacement: "rather than", rule: "Than vs Then", explanation: "'Than' for comparisons.", category: "word_choice" },
+        { pattern: /\bother\s+then\b/gi, replacement: "other than", rule: "Than vs Then", explanation: "'Than' for comparisons.", category: "word_choice" },
+        
+        // to/too/two
+        { pattern: /\bto\s+(much|many|late|early|soon|long|short|big|small|hard|easy|fast|slow|hot|cold|loud|quiet|far|close|high|low)\b/gi, replacement: "too $1", rule: "Too vs To", explanation: "'Too' = excessive or also. 'To' = direction/infinitive.", category: "word_choice" },
+        { pattern: /\bme\s+to\b/gi, replacement: "me too", rule: "Too vs To", explanation: "'Too' = also.", category: "word_choice" },
+        
+        // affect/effect
+        { pattern: /\bthe\s+affect\b/gi, replacement: "the effect", rule: "Effect vs Affect", explanation: "'Effect' is usually a noun. 'Affect' is usually a verb.", category: "word_choice" },
+        { pattern: /\ban\s+affect\b/gi, replacement: "an effect", rule: "Effect vs Affect", explanation: "'Effect' is usually a noun.", category: "word_choice" },
+        
+        // === COMMON SPEECH RECOGNITION ERRORS ===
+        { pattern: /\bi seen\b/gi, replacement: "I saw", rule: "Past tense of 'see'", explanation: "'Seen' needs a helper verb (have/had). On its own, use 'saw'.", category: "grammar" },
+        { pattern: /\bi've saw\b/gi, replacement: "I've seen", rule: "Present perfect", explanation: "With 'have', use 'seen' not 'saw'.", category: "grammar" },
+        { pattern: /\bi done\b/gi, replacement: "I did", rule: "Past tense", explanation: "'Done' needs a helper verb. On its own, use 'did'.", category: "grammar" },
+        { pattern: /\bi've did\b/gi, replacement: "I've done", rule: "Present perfect", explanation: "With 'have', use 'done' not 'did'.", category: "grammar" },
+        
+        // === SHOULD/COULD/WOULD OF ===
+        { pattern: /\bshould\s*of\b/gi, replacement: "should have", rule: "Should HAVE", explanation: "It sounds like 'of' but it's 'have'.", category: "grammar" },
+        { pattern: /\bcould\s*of\b/gi, replacement: "could have", rule: "Could HAVE", explanation: "It sounds like 'of' but it's 'have'.", category: "grammar" },
+        { pattern: /\bwould\s*of\b/gi, replacement: "would have", rule: "Would HAVE", explanation: "It sounds like 'of' but it's 'have'.", category: "grammar" },
+        { pattern: /\bmust\s*of\b/gi, replacement: "must have", rule: "Must HAVE", explanation: "It sounds like 'of' but it's 'have'.", category: "grammar" },
+        { pattern: /\bmight\s*of\b/gi, replacement: "might have", rule: "Might HAVE", explanation: "It sounds like 'of' but it's 'have'.", category: "grammar" },
+        
+        // === SUBJECT-VERB AGREEMENT ===
+        { pattern: /\bthey\s+was\b/gi, replacement: "they were", rule: "They WERE", explanation: "'They' is plural, use 'were' not 'was'.", category: "grammar" },
+        { pattern: /\bwe\s+was\b/gi, replacement: "we were", rule: "We WERE", explanation: "'We' is plural, use 'were' not 'was'.", category: "grammar" },
+        { pattern: /\byou\s+was\b/gi, replacement: "you were", rule: "You WERE", explanation: "'You' takes 'were' not 'was'.", category: "grammar" },
+        { pattern: /\bhe\s+don't\b/gi, replacement: "he doesn't", rule: "He/She DOESN'T", explanation: "With he/she/it, use 'doesn't' not 'don't'.", category: "grammar" },
+        { pattern: /\bshe\s+don't\b/gi, replacement: "she doesn't", rule: "He/She DOESN'T", explanation: "With he/she/it, use 'doesn't' not 'don't'.", category: "grammar" },
+        { pattern: /\bit\s+don't\b/gi, replacement: "it doesn't", rule: "It DOESN'T", explanation: "With he/she/it, use 'doesn't' not 'don't'.", category: "grammar" },
+        
+        // === DOUBLE NEGATIVES ===
+        { pattern: /\bdon't\s+got\s+no\b/gi, replacement: "don't have any", rule: "Double negative", explanation: "Avoid double negatives in professional writing.", category: "grammar" },
+        { pattern: /\bcan't\s+get\s+no\b/gi, replacement: "can't get any", rule: "Double negative", explanation: "Avoid double negatives.", category: "grammar" },
+        { pattern: /\bain't\s+got\s+no\b/gi, replacement: "don't have any", rule: "Double negative", explanation: "Avoid double negatives.", category: "grammar" },
+        { pattern: /\bdon't\s+know\s+nothing\b/gi, replacement: "don't know anything", rule: "Double negative", explanation: "Avoid double negatives.", category: "grammar" },
+        
+        // === COMMON PHRASES ===
+        { pattern: /\bi\s+could\s+care\s+less\b/gi, replacement: "I couldn't care less", rule: "Logic fix", explanation: "If you COULD care less, you still care. 'Couldn't' = zero caring.", category: "word_choice" },
+        { pattern: /\bfor\s+all\s+intensive\s+purposes\b/gi, replacement: "for all intents and purposes", rule: "Common mishearing", explanation: "It's 'intents and purposes'.", category: "word_choice" },
+        { pattern: /\bsuppose\s+to\b/gi, replacement: "supposed to", rule: "Missing 'd'", explanation: "It's 'supposed to' with a 'd'.", category: "grammar" },
+        { pattern: /\buse\s+to\b/gi, replacement: "used to", rule: "Missing 'd'", explanation: "It's 'used to' with a 'd'.", category: "grammar" },
+        { pattern: /\birregardless\b/gi, replacement: "regardless", rule: "Not a standard word", explanation: "Just use 'regardless'.", category: "word_choice" },
+        { pattern: /\bsupposably\b/gi, replacement: "supposedly", rule: "Mispronunciation", explanation: "It's 'supposedly'.", category: "word_choice" },
+        { pattern: /\bpacifically\b/gi, replacement: "specifically", rule: "Mispronunciation", explanation: "It's 'specifically'.", category: "word_choice" },
+        { pattern: /\bexpresso\b/gi, replacement: "espresso", rule: "Mispronunciation", explanation: "It's 'espresso'.", category: "word_choice" },
+        
+        // === A LOT / ALOT ===
+        { pattern: /\balot\b/gi, replacement: "a lot", rule: "Two words", explanation: "'A lot' is always two words.", category: "grammar" },
+        { pattern: /\ballot\b(?!\s+(of\s+)?(votes?|ballots?|papers?|boxes?))/gi, replacement: "a lot", rule: "Two words", explanation: "'A lot' is always two words (unless you mean voting ballot).", category: "grammar" },
+        
+        // === INFORMAL SPEECH (Speech API often keeps these) ===
+        { pattern: /\bgonna\b/gi, replacement: "going to", rule: "Informal", explanation: "'Gonna' → 'going to' in professional writing.", category: "word_choice" },
+        { pattern: /\bwanna\b/gi, replacement: "want to", rule: "Informal", explanation: "'Wanna' → 'want to' in professional writing.", category: "word_choice" },
+        { pattern: /\bgotta\b/gi, replacement: "got to", rule: "Informal", explanation: "'Gotta' → 'got to' in professional writing.", category: "word_choice" },
+        { pattern: /\bkinda\b/gi, replacement: "kind of", rule: "Informal", explanation: "'Kinda' → 'kind of' in professional writing.", category: "word_choice" },
+        { pattern: /\bsorta\b/gi, replacement: "sort of", rule: "Informal", explanation: "'Sorta' → 'sort of' in professional writing.", category: "word_choice" },
+        { pattern: /\bdunno\b/gi, replacement: "don't know", rule: "Informal", explanation: "'Dunno' → 'don't know' in professional writing.", category: "word_choice" },
+        { pattern: /\blemme\b/gi, replacement: "let me", rule: "Informal", explanation: "'Lemme' → 'let me' in professional writing.", category: "word_choice" },
+        { pattern: /\bgimme\b/gi, replacement: "give me", rule: "Informal", explanation: "'Gimme' → 'give me' in professional writing.", category: "word_choice" },
+        { pattern: /\bcuz\b/gi, replacement: "because", rule: "Informal", explanation: "'Cuz' → 'because' in professional writing.", category: "word_choice" },
+        { pattern: /\bcause\s+(?=i|he|she|it|we|they|you|the|a|my|his|her|our|their)/gi, replacement: "because ", rule: "Informal", explanation: "'Cause' → 'because'.", category: "word_choice" },
+        
+        // === WHERE...AT ===
+        { pattern: /\bwhere\s+(?:is|are|was|were)\s+(?:he|she|it|they|you|we)\s+at\b/gi, replacement: match => match.replace(/\s+at$/, ''), rule: "Redundant 'at'", explanation: "'Where' already implies location. 'At' is unnecessary.", category: "grammar" },
+        { pattern: /\bwhere(?:'s| is| are)\s+(?:it|that|this)\s+at\b/gi, replacement: match => match.replace(/\s+at$/, ''), rule: "Redundant 'at'", explanation: "'Where' already implies location.", category: "grammar" },
+        
+        // === CAPITALIZATION ===
+        { pattern: /(?:^|[.!?]\s+)([a-z])/g, replacement: (match, letter) => match.slice(0, -1) + letter.toUpperCase(), rule: "Capitalize", explanation: "Capitalize first word of sentence.", category: "punctuation" },
+        { pattern: /\bi\b(?!')/g, replacement: "I", rule: "Capitalize 'I'", explanation: "The pronoun 'I' is always capitalized.", category: "grammar" },
+        { pattern: /\bi'm\b/gi, replacement: "I'm", rule: "Capitalize 'I'", explanation: "Always capitalize 'I'.", category: "grammar" },
+        { pattern: /\bi've\b/gi, replacement: "I've", rule: "Capitalize 'I'", explanation: "Always capitalize 'I'.", category: "grammar" },
+        { pattern: /\bi'll\b/gi, replacement: "I'll", rule: "Capitalize 'I'", explanation: "Always capitalize 'I'.", category: "grammar" },
+        { pattern: /\bi'd\b/gi, replacement: "I'd", rule: "Capitalize 'I'", explanation: "Always capitalize 'I'.", category: "grammar" },
+        
+        // === MISSING APOSTROPHES (if speech API missed them) ===
+        { pattern: /\bdont\b/gi, replacement: "don't", rule: "Apostrophe", explanation: "'Don't' = 'do not'.", category: "punctuation" },
+        { pattern: /\bcant\b/gi, replacement: "can't", rule: "Apostrophe", explanation: "'Can't' = 'cannot'.", category: "punctuation" },
+        { pattern: /\bwont\b/gi, replacement: "won't", rule: "Apostrophe", explanation: "'Won't' = 'will not'.", category: "punctuation" },
+        { pattern: /\bisnt\b/gi, replacement: "isn't", rule: "Apostrophe", explanation: "'Isn't' = 'is not'.", category: "punctuation" },
+        { pattern: /\barent\b/gi, replacement: "aren't", rule: "Apostrophe", explanation: "'Aren't' = 'are not'.", category: "punctuation" },
+        { pattern: /\bwasnt\b/gi, replacement: "wasn't", rule: "Apostrophe", explanation: "'Wasn't' = 'was not'.", category: "punctuation" },
+        { pattern: /\bwerent\b/gi, replacement: "weren't", rule: "Apostrophe", explanation: "'Weren't' = 'were not'.", category: "punctuation" },
+        { pattern: /\bdidnt\b/gi, replacement: "didn't", rule: "Apostrophe", explanation: "'Didn't' = 'did not'.", category: "punctuation" },
+        { pattern: /\bcouldnt\b/gi, replacement: "couldn't", rule: "Apostrophe", explanation: "'Couldn't' = 'could not'.", category: "punctuation" },
+        { pattern: /\bwouldnt\b/gi, replacement: "wouldn't", rule: "Apostrophe", explanation: "'Wouldn't' = 'would not'.", category: "punctuation" },
+        { pattern: /\bshouldnt\b/gi, replacement: "shouldn't", rule: "Apostrophe", explanation: "'Shouldn't' = 'should not'.", category: "punctuation" },
+        { pattern: /\bhasnt\b/gi, replacement: "hasn't", rule: "Apostrophe", explanation: "'Hasn't' = 'has not'.", category: "punctuation" },
+        { pattern: /\bhavent\b/gi, replacement: "haven't", rule: "Apostrophe", explanation: "'Haven't' = 'have not'.", category: "punctuation" },
+        { pattern: /\bthats\b/gi, replacement: "that's", rule: "Apostrophe", explanation: "'That's' = 'that is'.", category: "punctuation" },
+        { pattern: /\bwhats\b/gi, replacement: "what's", rule: "Apostrophe", explanation: "'What's' = 'what is'.", category: "punctuation" },
+        { pattern: /\bheres\b/gi, replacement: "here's", rule: "Apostrophe", explanation: "'Here's' = 'here is'.", category: "punctuation" },
+        { pattern: /\btheres\b/gi, replacement: "there's", rule: "Apostrophe", explanation: "'There's' = 'there is'.", category: "punctuation" },
+        { pattern: /\bwheres\b/gi, replacement: "where's", rule: "Apostrophe", explanation: "'Where's' = 'where is'.", category: "punctuation" },
+        { pattern: /\blets\b(?!\s+(?:go|see|do|try|get|make|take|check|find|call|start))/g, replacement: "let's", rule: "Apostrophe", explanation: "'Let's' = 'let us'.", category: "punctuation" },
+        { pattern: /\bim\b/gi, replacement: "I'm", rule: "Apostrophe + Capitalize", explanation: "'I'm' = 'I am'.", category: "punctuation" },
+        { pattern: /\bive\b/gi, replacement: "I've", rule: "Apostrophe + Capitalize", explanation: "'I've' = 'I have'.", category: "punctuation" },
+        { pattern: /\bill\b(?!\s)/gi, replacement: "I'll", rule: "Apostrophe + Capitalize", explanation: "'I'll' = 'I will'.", category: "punctuation" },
+        
+        // === PUNCTUATION SPACING ===
+        { pattern: /\s+([.,!?])/g, replacement: "$1", rule: "No space before punctuation", explanation: "Punctuation goes right after the word.", category: "punctuation" },
+        { pattern: /([.,!?])(?=[A-Za-z])/g, replacement: "$1 ", rule: "Space after punctuation", explanation: "Add space after punctuation.", category: "punctuation" },
+        { pattern: /\s{2,}/g, replacement: " ", rule: "Single spaces", explanation: "Use single spaces between words.", category: "punctuation" },
+        
+        // === SECURITY INDUSTRY SPECIFIC ===
+        { pattern: /\balarm\s+(?:went|is\s+going|goes)\s+off\b/gi, replacement: "alarm activated", rule: "Industry term", explanation: "'Alarm activated' is more professional.", category: "industry" },
+        { pattern: /\bpanel\s+(?:is|was)\s+(?:acting|being)\s+(?:weird|crazy|funny|strange)\b/gi, replacement: "panel is experiencing issues", rule: "Industry term", explanation: "Be specific about panel behavior.", category: "industry" },
+        { pattern: /\bsensor\s+(?:is|was)\s+(?:going|acting)\s+(?:crazy|nuts|haywire|weird)\b/gi, replacement: "sensor is malfunctioning", rule: "Industry term", explanation: "'Malfunctioning' is professional.", category: "industry" },
+      ];
+      
+      // Apply rules
+      rules.forEach(rule => {
+        const matches = correctedText.match(rule.pattern);
+        if (matches) {
+          matches.forEach(match => {
+            let corrected;
+            if (typeof rule.replacement === 'function') {
+              corrected = match.replace(rule.pattern, rule.replacement);
+            } else {
+              corrected = match.replace(rule.pattern, rule.replacement);
+            }
+            if (match.toLowerCase() !== corrected.toLowerCase()) {
+              corrections.push({
+                original: match,
+                corrected: corrected,
+                rule: rule.rule,
+                explanation: rule.explanation,
+                category: rule.category
+              });
+            }
+          });
+          if (typeof rule.replacement === 'function') {
+            correctedText = correctedText.replace(rule.pattern, rule.replacement);
+          } else {
+            correctedText = correctedText.replace(rule.pattern, rule.replacement);
+          }
+        }
+      });
+      
+      // Capitalize first letter if needed
+      if (correctedText.length > 0 && /[a-z]/.test(correctedText[0])) {
+        const original = correctedText[0];
+        correctedText = correctedText[0].toUpperCase() + correctedText.slice(1);
+        corrections.push({
+          original: original,
+          corrected: correctedText[0],
+          rule: "Capitalize first word",
+          explanation: "Always capitalize the first word.",
+          category: "punctuation"
+        });
+      }
+      
+      // Remove duplicate corrections
+      const uniqueCorrections = corrections.filter((c, i, arr) => 
+        arr.findIndex(x => x.original === c.original && x.corrected === c.corrected) === i
+      );
+      
+      // Calculate score
+      const wordCount = text.split(/\s+/).filter(w => w).length;
+      const errorRate = wordCount > 0 ? uniqueCorrections.length / wordCount : 0;
+      let score = Math.max(0, Math.round(100 - (errorRate * 150)));
+      if (uniqueCorrections.length === 0) score = 100;
+      
+      return { corrections: uniqueCorrections, correctedText, score };
+    };
+
+    // ========================================
+    // MAIN APP COMPONENT
+    // ========================================
+    function WriteRight() {
+      const [screen, setScreen] = useState('home');
+      const [isRecording, setIsRecording] = useState(false);
+      const [finalTranscript, setFinalTranscript] = useState('');
+      const [interimTranscript, setInterimTranscript] = useState('');
+      const [result, setResult] = useState(null);
+      const [history, setHistory] = useState([]);
+      const [correctionMode, setCorrectionMode] = useState('learn');
+      const [copyFeedback, setCopyFeedback] = useState('');
+      const [manualInput, setManualInput] = useState('');
+      const [inputMode, setInputMode] = useState('voice'); // 'voice' or 'type'
+      
+      const recognitionRef = useRef(null);
+      const isRecordingRef = useRef(false); // Ref to avoid stale closure
+
+      // Keep ref in sync with state
+      useEffect(() => {
+        isRecordingRef.current = isRecording;
+      }, [isRecording]);
+
+      // Initialize speech recognition ONCE
+      useEffect(() => {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          const recognition = new SpeechRecognition();
+          
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.lang = 'en-US';
+          recognition.maxAlternatives = 1;
+          
+          recognition.onresult = (event) => {
+            let interim = '';
+            let final = '';
+            
+            // Process only from resultIndex to avoid duplication
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              const transcript = event.results[i][0].transcript;
+              if (event.results[i].isFinal) {
+                final += transcript;
+              } else {
+                interim += transcript;
+              }
+            }
+            
+            // Append final results, replace interim
+            if (final) {
+              setFinalTranscript(prev => prev + final);
+            }
+            setInterimTranscript(interim);
+          };
+          
+          recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            if (event.error === 'no-speech') {
+              // This is common, don't stop recording
+              return;
+            }
+            if (event.error !== 'aborted') {
+              setIsRecording(false);
+            }
+          };
+          
+          recognition.onend = () => {
+            // Use ref to get current value, not stale closure
+            if (isRecordingRef.current) {
+              try {
+                recognition.start();
+              } catch (e) {
+                // Already started, ignore
+              }
+            }
+          };
+          
+          recognitionRef.current = recognition;
+        }
+        
+        // Cleanup
+        return () => {
+          if (recognitionRef.current) {
+            try {
+              recognitionRef.current.stop();
+            } catch (e) {}
+          }
+        };
+      }, []); // Empty deps - only run once
+
+      const startRecording = useCallback(() => {
+        setFinalTranscript('');
+        setInterimTranscript('');
+        setIsRecording(true);
+        isRecordingRef.current = true;
+        
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.start();
+          } catch (e) {
+            console.error('Failed to start recognition:', e);
+          }
+        }
+        setScreen('record');
+      }, []);
+
+      const stopRecording = useCallback(() => {
+        setIsRecording(false);
+        isRecordingRef.current = false;
+        
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.stop();
+          } catch (e) {}
+        }
+        
+        // Combine final + any remaining interim
+        const fullTranscript = (finalTranscript + ' ' + interimTranscript).trim();
+        
+        if (fullTranscript) {
+          const analysisResult = analyzeGrammar(fullTranscript);
+          setResult(analysisResult);
+          
+          const historyItem = {
+            id: Date.now(),
+            original: fullTranscript,
+            corrected: analysisResult.correctedText,
+            score: analysisResult.score,
+            corrections: analysisResult.corrections.length,
+            timestamp: new Date().toLocaleString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              hour: 'numeric', 
+              minute: '2-digit',
+              hour12: true 
+            })
+          };
+          setHistory(prev => [historyItem, ...prev.slice(0, 49)]);
+          
+          setScreen('review');
+        } else {
+          setScreen('home');
+        }
+      }, [finalTranscript, interimTranscript]);
+
+      const analyzeManualInput = useCallback(() => {
+        if (!manualInput.trim()) return;
+        
+        const analysisResult = analyzeGrammar(manualInput);
+        setResult(analysisResult);
+        
+        const historyItem = {
+          id: Date.now(),
+          original: manualInput,
+          corrected: analysisResult.correctedText,
+          score: analysisResult.score,
+          corrections: analysisResult.corrections.length,
+          timestamp: new Date().toLocaleString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+          })
+        };
+        setHistory(prev => [historyItem, ...prev.slice(0, 49)]);
+        setFinalTranscript(manualInput);
+        setManualInput('');
+        setScreen('review');
+      }, [manualInput]);
+
+      const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text).then(() => {
+          setCopyFeedback('Copied!');
+          setTimeout(() => setCopyFeedback(''), 1500);
+        });
+      };
+
+      // Get combined transcript for display
+      const displayTranscript = finalTranscript + (interimTranscript ? ' ' + interimTranscript : '');
+
+      // HOME SCREEN
+      const HomeScreen = () => (
+        <div className="flex flex-col h-full">
+          <div className="px-5 pt-6 pb-2 flex items-center justify-between">
+            <h1 className="text-2xl font-black">
+              <span className="text-emerald-400">Write</span>
+              <span className="text-white">Right</span>
+            </h1>
+            <button 
+              onClick={() => setScreen('settings')}
+              className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center"
+            >
+              <svg className="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          </div>
+          
+          <div className="px-5 pb-4">
+            <p className="text-zinc-500 text-sm">Speak it. Send it right.</p>
+          </div>
+          
+          {/* Mode Toggle */}
+          <div className="px-5 mb-4">
+            <div className="flex bg-zinc-800/80 rounded-xl p-1">
+              <button 
+                onClick={() => setInputMode('voice')}
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${inputMode === 'voice' ? 'bg-emerald-500 text-white' : 'text-zinc-400'}`}
+              >
+                🎤 Voice
+              </button>
+              <button 
+                onClick={() => setInputMode('type')}
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${inputMode === 'type' ? 'bg-emerald-500 text-white' : 'text-zinc-400'}`}
+              >
+                ⌨️ Type
+              </button>
+            </div>
+          </div>
+          
+          {/* Main Content */}
+          <div className="flex-1 flex items-center justify-center px-5">
+            {inputMode === 'voice' ? (
+              <div className="text-center">
+                <button 
+                  onClick={startRecording}
+                  className="w-32 h-32 rounded-full bg-emerald-500 flex items-center justify-center mx-auto mb-6 transition-all duration-200 hover:scale-105 active:scale-95 record-btn-glow"
+                >
+                  <svg className="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                  </svg>
+                </button>
+                <p className="text-zinc-400 font-medium mb-1">Tap to speak</p>
+                <p className="text-zinc-600 text-sm">Voice-to-text with instant grammar fixes</p>
+              </div>
+            ) : (
+              <div className="w-full">
+                <textarea
+                  value={manualInput}
+                  onChange={(e) => setManualInput(e.target.value)}
+                  placeholder="Type or paste your text here..."
+                  className="w-full h-40 bg-zinc-800/80 rounded-xl p-4 text-white placeholder-zinc-600 border border-zinc-700/40 resize-none outline-none focus:border-emerald-500/50"
+                />
+                <button 
+                  onClick={analyzeManualInput}
+                  disabled={!manualInput.trim()}
+                  className={`w-full mt-4 py-4 rounded-xl font-semibold transition-colors ${manualInput.trim() ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'}`}
+                >
+                  Check Grammar
+                </button>
+              </div>
+            )}
+          </div>
+          
+          {/* Bottom Nav */}
+          <div className="px-5 pb-6 pt-4">
+            <div className="flex items-center justify-around bg-zinc-800/80 rounded-2xl p-2">
+              <button onClick={() => setScreen('history')} className="flex flex-col items-center py-2 px-4 rounded-xl">
+                <svg className="w-6 h-6 text-zinc-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-zinc-500 text-xs">History</span>
+              </button>
+              <button onClick={() => setScreen('learn')} className="flex flex-col items-center py-2 px-4 rounded-xl">
+                <svg className="w-6 h-6 text-zinc-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span className="text-zinc-500 text-xs">Tips</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+
+      // RECORD SCREEN
+      const RecordScreen = () => (
+        <div className="flex flex-col h-full">
+          <div className="px-5 pt-6 pb-3 flex items-center justify-between">
+            <button onClick={() => { setIsRecording(false); isRecordingRef.current = false; if(recognitionRef.current) { try { recognitionRef.current.stop(); } catch(e){} } setScreen('home'); }} className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+              <svg className="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-red-400 text-sm font-medium">Recording</span>
+            </div>
+            <div className="w-10" />
+          </div>
+          
+          <div className="flex-1 flex flex-col items-center justify-center px-5">
+            <div className="w-24 h-24 rounded-full bg-red-500 flex items-center justify-center mb-8 recording-pulse">
+              <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+              </svg>
+            </div>
+            
+            <div className="w-full max-h-48 overflow-y-auto mb-6 bg-zinc-800/50 rounded-xl p-4 min-h-24">
+              <p className="text-zinc-300 text-center leading-relaxed">
+                {finalTranscript}
+                {interimTranscript && <span className="interim-text"> {interimTranscript}</span>}
+                {!displayTranscript && <span className="text-zinc-600">Listening...</span>}
+              </p>
+            </div>
+            
+            <button 
+              onClick={stopRecording}
+              className="w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition-colors"
+            >
+              Done Speaking
+            </button>
+          </div>
+        </div>
+      );
+
+      // REVIEW SCREEN
+      const ReviewScreen = () => (
+        <div className="flex flex-col h-full">
+          <div className="px-5 pt-6 pb-3 flex items-center justify-between">
+            <button onClick={() => setScreen('home')} className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+              <svg className="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-2">
+              <span className={`text-2xl font-black ${result?.score >= 80 ? 'text-emerald-400' : result?.score >= 60 ? 'text-amber-400' : 'text-red-400'}`}>
+                {result?.score}
+              </span>
+              <span className="text-zinc-500 text-sm">/100</span>
+            </div>
+            <div className="w-10" />
+          </div>
+          
+          <div className="flex-1 overflow-auto px-5 pb-6">
+            {/* Corrected Text */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-zinc-500 text-xs uppercase tracking-wider font-medium">Corrected</span>
+                <button 
+                  onClick={() => copyToClipboard(result?.correctedText)}
+                  className="flex items-center gap-1 text-emerald-400 text-xs font-medium"
+                >
+                  {copyFeedback || (
+                    <>
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                      </svg>
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="bg-zinc-800/80 rounded-xl p-4 border border-emerald-500/30">
+                <p className="text-white leading-relaxed">{result?.correctedText}</p>
+              </div>
+            </div>
+            
+            {/* Original */}
+            <div className="mb-4">
+              <span className="text-zinc-500 text-xs uppercase tracking-wider font-medium block mb-2">Original</span>
+              <div className="bg-zinc-800/50 rounded-xl p-4 border border-zinc-700/40">
+                <p className="text-zinc-400 leading-relaxed">{finalTranscript}</p>
+              </div>
+            </div>
+            
+            {/* Corrections */}
+            {result?.corrections?.length > 0 && (
+              <div>
+                <span className="text-zinc-500 text-xs uppercase tracking-wider font-medium block mb-2">
+                  {result.corrections.length} Correction{result.corrections.length !== 1 ? 's' : ''}
+                </span>
+                <div className="space-y-2">
+                  {result.corrections.map((c, i) => (
+                    <div key={i} className={`rounded-xl p-3 border ${
+                      c.category === 'grammar' ? 'bg-red-500/10 border-red-500/30' :
+                      c.category === 'punctuation' ? 'bg-amber-500/10 border-amber-500/30' :
+                      c.category === 'word_choice' ? 'bg-blue-500/10 border-blue-500/30' :
+                      c.category === 'industry' ? 'bg-emerald-500/10 border-emerald-500/30' :
+                      'bg-zinc-800/50 border-zinc-700/40'
+                    }`}>
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="text-red-400 line-through text-sm">"{c.original}"</span>
+                        <svg className="w-3 h-3 text-zinc-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                        <span className="text-emerald-400 font-medium text-sm">"{c.corrected}"</span>
+                      </div>
+                      <p className="text-zinc-500 text-xs">{c.rule}</p>
+                      {correctionMode === 'learn' && (
+                        <p className="text-zinc-600 text-xs mt-1">{c.explanation}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {result?.corrections?.length === 0 && (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="text-emerald-400 font-semibold">Perfect!</p>
+                <p className="text-zinc-500 text-sm">No corrections needed</p>
+              </div>
+            )}
+          </div>
+          
+          {/* Bottom Actions */}
+          <div className="px-5 pb-6 flex gap-3">
+            <button 
+              onClick={() => { setFinalTranscript(''); setInterimTranscript(''); setResult(null); setScreen('home'); }}
+              className="flex-1 py-3 rounded-xl bg-zinc-800 text-zinc-300 font-medium"
+            >
+              New
+            </button>
+            <button 
+              onClick={() => copyToClipboard(result?.correctedText)}
+              className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-medium"
+            >
+              Copy & Use
+            </button>
+          </div>
+        </div>
+      );
+
+      // HISTORY SCREEN
+      const HistoryScreen = () => (
+        <div className="flex flex-col h-full">
+          <div className="px-5 pt-6 pb-3 flex items-center justify-between">
+            <button onClick={() => setScreen('home')} className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+              <svg className="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h2 className="text-white font-bold text-lg">History</h2>
+            <div className="w-10" />
+          </div>
+          <div className="flex-1 overflow-auto px-5 pb-6">
+            {history.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <p className="text-zinc-400 font-medium">No messages yet</p>
+                <p className="text-zinc-600 text-sm mt-1">Your history will appear here</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {history.map((item) => (
+                  <div key={item.id} className="bg-zinc-800/80 rounded-xl p-4 border border-zinc-700/40">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-zinc-500 text-xs">{item.timestamp}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-bold text-sm ${item.score >= 80 ? 'text-emerald-400' : item.score >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{item.score}</span>
+                        <span className="text-zinc-600 text-xs">{item.corrections} fix{item.corrections !== 1 ? 'es' : ''}</span>
+                      </div>
+                    </div>
+                    <p className="text-zinc-300 text-sm line-clamp-2">{item.corrected}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+
+      // LEARN SCREEN
+      const LearnScreen = () => (
+        <div className="flex flex-col h-full">
+          <div className="px-5 pt-6 pb-3 flex items-center justify-between">
+            <button onClick={() => setScreen('home')} className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+              <svg className="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h2 className="text-white font-bold text-lg">Quick Tips</h2>
+            <div className="w-10" />
+          </div>
+          <div className="flex-1 overflow-auto px-5 pb-6">
+            <div className="space-y-3">
+              {[
+                { title: "Your vs You're", tip: "'You're' = 'you are'. Try substituting - if 'you are' works, use 'you're'.", icon: "🔤" },
+                { title: "Their vs There vs They're", tip: "'There' = location. 'Their' = possession. 'They're' = they are.", icon: "📍" },
+                { title: "Its vs It's", tip: "'It's' = 'it is' (has apostrophe). 'Its' = possession (no apostrophe!).", icon: "✏️" },
+                { title: "Than vs Then", tip: "'Than' compares (better THAN). 'Then' = time (first this, THEN that).", icon: "⚖️" },
+                { title: "To vs Too vs Two", tip: "'Too' = excessive/also. 'To' = direction. 'Two' = the number 2.", icon: "2️⃣" },
+                { title: "Should HAVE (not 'of')", tip: "It sounds like 'of' when spoken, but it's 'have'. Same for could/would.", icon: "📝" },
+                { title: "I saw (not 'I seen')", tip: "'Seen' needs a helper: 'I have seen'. On its own, use 'saw'.", icon: "👀" },
+                { title: "A lot (two words)", tip: "'A lot' is always two words. 'Alot' isn't a real word.", icon: "📏" },
+              ].map((item, i) => (
+                <div key={i} className="bg-zinc-800/80 rounded-xl p-4 border border-zinc-700/40">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-xl">{item.icon}</span>
+                    <p className="text-white font-semibold">{item.title}</p>
+                  </div>
+                  <p className="text-zinc-400 text-sm leading-relaxed">{item.tip}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+
+      // SETTINGS SCREEN
+      const SettingsScreen = () => (
+        <div className="flex flex-col h-full">
+          <div className="px-5 pt-6 pb-3 flex items-center justify-between">
+            <button onClick={() => setScreen('home')} className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+              <svg className="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h2 className="text-white font-bold text-lg">Settings</h2>
+            <div className="w-10" />
+          </div>
+          <div className="flex-1 overflow-auto px-5 pb-6">
+            <div className="mb-6">
+              <h3 className="text-zinc-400 text-xs uppercase tracking-wider mb-3 font-medium">Correction Detail</h3>
+              <div className="bg-zinc-800/80 rounded-xl border border-zinc-700/40 overflow-hidden">
+                {[
+                  { id: 'quick', label: 'Quick Fix', desc: 'Just show the fix' },
+                  { id: 'learn', label: 'Learn Why', desc: 'Show explanations' }
+                ].map((mode, i) => (
+                  <button 
+                    key={mode.id} 
+                    onClick={() => setCorrectionMode(mode.id)} 
+                    className="w-full p-4 flex items-center justify-between"
+                    style={{ borderTop: i > 0 ? '1px solid rgba(63, 63, 70, 0.5)' : 'none' }}
+                  >
+                    <div className="text-left">
+                      <p className="text-white font-medium">{mode.label}</p>
+                      <p className="text-zinc-500 text-sm">{mode.desc}</p>
+                    </div>
+                    <div 
+                      className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                      style={{ 
+                        backgroundColor: correctionMode === mode.id ? '#10b981' : 'transparent', 
+                        borderColor: correctionMode === mode.id ? '#10b981' : '#52525b' 
+                      }}
+                    >
+                      {correctionMode === mode.id && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="bg-zinc-800/80 rounded-xl p-5 border border-zinc-700/40 text-center">
+              <h1 className="text-xl font-black mb-1">
+                <span className="text-emerald-400">Write</span>
+                <span className="text-white">Right</span>
+              </h1>
+              <p className="text-zinc-500 text-sm">v2.0</p>
+              <p className="text-zinc-600 text-xs mt-2">Speak it. Send it right.</p>
+              <div className="flex items-center justify-center gap-2 mt-3">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#10b981' }} />
+                <span className="text-emerald-400 text-xs">
+                  {('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) 
+                    ? 'Voice recognition ready' 
+                    : 'Voice not supported - use Type mode'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      return (
+        <div className="w-full sm:max-w-sm mx-auto h-screen sm:h-[700px] relative overflow-hidden sm:rounded-3xl sm:border border-zinc-700/50 app-container">
+          {screen === 'home' && <HomeScreen />}
+          {screen === 'record' && <RecordScreen />}
+          {screen === 'review' && <ReviewScreen />}
+          {screen === 'history' && <HistoryScreen />}
+          {screen === 'learn' && <LearnScreen />}
+          {screen === 'settings' && <SettingsScreen />}
+        </div>
+      );
+    }
+
+    // Render
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<WriteRight />);
+  </script>
+</body>
+</html>
